@@ -1,0 +1,25 @@
+[* Function Definitions *]
+function sum(integer a, integer b) {
+    integer result;
+    result = a + b;
+    return result;
+}
+
+function main() {
+    integer x, y, z;
+    put("Enter two numbers: ");
+    get(x, y);
+
+    z = sum(x, y);
+    
+    put("The sum is: ");
+    put(z);
+    
+    if (z > 10) {
+        put("The result is greater than 10.");
+    } else {
+        put("The result is 10 or less.");
+    } fi
+}
+
+@ @

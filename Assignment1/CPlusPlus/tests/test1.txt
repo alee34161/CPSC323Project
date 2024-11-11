@@ -1,0 +1,43 @@
+int main()
+{
+	int var = 3;
+	real tester = 2.6;
+	if(var + tester == 5.6)
+	{
+		cout << "True" << endl;
+	}
+
+	switch(isOdd(var))
+	{
+		case true:
+		tester = 5.0;
+		break;
+		case false:
+		tester = 4.0;
+		break;
+	}
+
+	return 0;
+}
+
+bool isOdd(real value)
+{
+	if(value % 2 == 0)
+	{
+		return false;
+	} else
+	{
+		return true;
+	}
+}
+
+bool IsOdd(int value)
+{
+	if(value % 2 == 0)
+	{
+		return false;
+	} else
+	{
+		return true;
+	}
+}

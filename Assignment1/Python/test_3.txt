@@ -1,0 +1,43 @@
+[* wow this program is soo cool *]
+function multiply(integer a, integer b) {
+    integer result;
+    result = a * b;
+    return result;
+}
+
+function factorial(integer n) {
+    integer fact;
+    fact = 1;
+    while (n > 0) {
+        fact = fact * n;
+        n = n - 1;
+    }
+    return fact;
+}
+
+function main() {
+    integer x, y, prod, fact_x, fact_y;
+    
+    put("Enter two numbers: ");
+    get(x, y);
+
+    prod = multiply(x, y);
+    
+    put("The product is: ");
+    put(prod);
+    
+    fact_x = factorial(x);
+    fact_y = factorial(y);
+    
+    put("Factorial of first number is: ");
+    put(fact_x);
+
+    put("Factorial of second number is: ");
+    put(fact_y);
+    
+    if (prod > 100) {
+        put("The product is greater than 100.");
+    } else {
+        put("The product is 100 or less.");
+    } fi
+}

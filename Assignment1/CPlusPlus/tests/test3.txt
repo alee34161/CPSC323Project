@@ -1,0 +1,9 @@
+int iterations = 0;
+while(true)
+{
+	cout << "This is an infinite loop\n";
+	iterations++;
+}
+
+real dnfuiwefnijfew = 00058210.32982519000241; [* This is nonsense to test random combinations/extremes *]
+dnfuiwefnijfew = 2;

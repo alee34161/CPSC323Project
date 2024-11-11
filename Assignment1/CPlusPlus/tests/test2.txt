@@ -1,0 +1,8 @@
+real variable = 0.0;
+[**] [*      *] [* testing comments in different forms *]
+for(int i = 0; i <= 22; i++)
+{
+	variable += 000.260;
+}
+
+cout << variable << endl;
