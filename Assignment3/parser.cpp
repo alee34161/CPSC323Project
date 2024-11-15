@@ -1,4 +1,34 @@
 #include "lexer.cpp"
+#include <stack>
+#include <string>
+stack<string> heapStack;
+string instructions[1000][3];
+string symbols[1000];
+int instructionNumber = 1;
+int symbolNumber = 0;
+
+void generateInstruction(string instruction, string operand, string address)
+{
+	instructions[instructionNumber][0] = instruction;
+	instructions[instructionNumber][1] = operand;
+	instructions[instructionNumber][2] = address;
+	instructionNumber++;
+}
+
+string getAddress(string lexeme)
+{
+	int temp = -1;
+	for(int i = 0; i < 1000; i++)
+	{
+		if(symbols[i] == lexeme)
+		{
+			temp = i;
+		}
+	}
+	temp += 9000;
+
+	return to_string(temp);
+}
 
 void syntaxError()
 {
@@ -249,7 +279,22 @@ void ids()
 	{
 		syntaxError();
 	} else
-	{
+	{	
+		bool found = false;
+		for(int i = 0; i < 1000; i++)
+		{
+			if(symbols[i] == lexem)
+			{
+				found = true;
+			}
+		}
+		if(found)
+		{
+			cout << "Error, " << lexem << "already found in symbols table" << endl;
+		} else
+		{
+			symbols[symbolNumber] = lexem;
+		}
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -338,6 +383,7 @@ void assign()
 		syntaxError();
 	} else
 	{
+		string temp = lexem;
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -350,6 +396,8 @@ void assign()
 			while(!lexer(token, lexem));
 			print(token, lexem);
 			expression();
+			generateInstruction("POPM", "nil", getAddress(temp));
+			
 			if(lexem != ";")
 			{
 				syntaxError();
@@ -595,6 +643,13 @@ void expressionprime()
 	print("\t<ExpressionPrime> -> + <Term> <ExpressionPrime> | - <Term> <ExpressionPrime> | <Empty>");
 	if(lexem == "+" || lexem == "-")
 	{
+		if(lexem == "+")
+		{
+			generateInstruction("ADD", "nil", "nil");
+		} else
+		{
+			generateInstruction("SUB", "nil", "nil");
+		}
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -618,10 +673,25 @@ void termprime()
 	print("\t<TermPrime> -> * <Factor> <TermPrime> | / <Factor> <TermPrime> | <Empty>");
 	if(lexem == "*" || lexem == "/")
 	{
+		string temp;
+		if(lexem == "*")
+		{
+			temp = "*";
+		} else
+		{
+			temp = "/";
+		}
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
 		factor();
+		if(temp == "*")
+		{
+			generateInstruction("MUL", "nil", "nil");
+		} else
+		{
+			generateInstruction("DIV", "nil", "nil");
+		}
 		termprime();
 	} else
 	{
@@ -632,8 +702,10 @@ void termprime()
 void factor()
 {
 	print("\t<Factor> -> - <Primary> | <Primary>");
+	string temp = "";
 	if(lexem == "-")
 	{
+		temp += "-";
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -651,6 +723,7 @@ void primary()
 	{
 		if(token == "identifier")
 		{
+			generateInstruction("PUSHM", "nil", getAddress(lexem));
 			clearLexeme();
 			while(!lexer(token, lexem));
 			print(token, lexem);
