@@ -1,12 +1,7 @@
-[* this is comment for this sample code for assignment 3 *]
 @
-integer i, max, sum; [* declarations *]
-sum = 0;
-i = 1;
-get (max);
-while (i < max) {
-sum = sum + i;
-i = i + 1;
-}
-put (sum + max);
+integer x, a, b, c;
+a = 1;
+b = 2;
+c = 3;
+x = a + b*c;
 @

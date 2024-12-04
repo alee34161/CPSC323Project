@@ -7,10 +7,10 @@ string symbols[1000];
 int instructionNumber = 1;
 int symbolNumber = 0;
 
-void generateInstruction(string instruction, string operand, string address)
+void generateInstruction(string instruction, string address)
 {
-	instructions[instructionNumber][0] = instruction;
-	instructions[instructionNumber][1] = operand;
+	instructions[instructionNumber][0] = instructionNumber;
+	instructions[instructionNumber][1] = instruction;
 	instructions[instructionNumber][2] = address;
 	instructionNumber++;
 }
@@ -273,6 +273,7 @@ void declaration()
 {
 	print("\t<Declaration> -> <Qualifier> <IDs>");
 	qualifier();
+	
 	ids();
 }
 
@@ -294,11 +295,11 @@ void ids()
 		}
 		if(found)
 		{
-			cout << "\nError, " << lexem << " already found in symbols table unless using get" << endl;
+			cout << "\n" << lexem << " already found in symbols table, expected if using get()" << endl;
 		} else
 		{
 			symbols[symbolNumber] = lexem;
-			cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber;
+			cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber + 9000;
 			symbolNumber++;
 		}
 		clearLexeme();
@@ -402,7 +403,7 @@ void assign()
 			while(!lexer(token, lexem));
 			print(token, lexem);
 			expression();
-			generateInstruction("POPM", "nil", getAddress(temp));
+			generateInstruction("POPM", getAddress(temp));
 			cout << "\nGenerating Instruction with POPM, nil, " << getAddress(temp);
 			
 			if(lexem != ";")
@@ -556,6 +557,7 @@ void scanstatement()
 			clearLexeme();
 			while(!lexer(token, lexem));
 			print(token, lexem);
+			generateInstruction("PUSHM", getAddress(lexem));
 			ids();
 			if(lexem != ")")
 			{
@@ -652,11 +654,11 @@ void expressionprime()
 	{
 		if(lexem == "+")
 		{
-			generateInstruction("ADD", "nil", "nil");
+			generateInstruction("ADD", "nil");
 			cout << "\nGenerating instructions with ADD, nil, nil";
 		} else
 		{
-			generateInstruction("SUB", "nil", "nil");
+			generateInstruction("SUB", "nil");
 			cout << "\nGenerating instructions iwth SUB nil nil";
 		}
 		clearLexeme();
@@ -696,11 +698,11 @@ void termprime()
 		factor();
 		if(temp == "*")
 		{
-			generateInstruction("MUL", "nil", "nil");
+			generateInstruction("MUL", "nil");
 			
 		} else
 		{
-			generateInstruction("DIV", "nil", "nil");
+			generateInstruction("DIV", "nil");
 		}
 		termprime();
 	} else
@@ -733,7 +735,7 @@ void primary()
 	{
 		if(token == "identifier")
 		{
-			generateInstruction("PUSHM", "nil", getAddress(lexem));
+			generateInstruction("PUSHM", getAddress(lexem));
 			clearLexeme();
 			while(!lexer(token, lexem));
 			print(token, lexem);
