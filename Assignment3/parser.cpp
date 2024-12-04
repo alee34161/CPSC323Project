@@ -24,6 +24,10 @@ string getAddress(string lexeme)
 		{
 			temp = i;
 		}
+	} 
+	if(temp == -1)
+	{
+		return "error finding symbol address";
 	}
 	temp += 9000;
 
@@ -290,10 +294,12 @@ void ids()
 		}
 		if(found)
 		{
-			cout << "Error, " << lexem << "already found in symbols table" << endl;
+			cout << "\nError, " << lexem << " already found in symbols table unless using get" << endl;
 		} else
 		{
 			symbols[symbolNumber] = lexem;
+			cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber;
+			symbolNumber++;
 		}
 		clearLexeme();
 		while(!lexer(token, lexem));
@@ -397,6 +403,7 @@ void assign()
 			print(token, lexem);
 			expression();
 			generateInstruction("POPM", "nil", getAddress(temp));
+			cout << "\nGenerating Instruction with POPM, nil, " << getAddress(temp);
 			
 			if(lexem != ";")
 			{
@@ -646,9 +653,11 @@ void expressionprime()
 		if(lexem == "+")
 		{
 			generateInstruction("ADD", "nil", "nil");
+			cout << "\nGenerating instructions with ADD, nil, nil";
 		} else
 		{
 			generateInstruction("SUB", "nil", "nil");
+			cout << "\nGenerating instructions iwth SUB nil nil";
 		}
 		clearLexeme();
 		while(!lexer(token, lexem));
@@ -688,6 +697,7 @@ void termprime()
 		if(temp == "*")
 		{
 			generateInstruction("MUL", "nil", "nil");
+			
 		} else
 		{
 			generateInstruction("DIV", "nil", "nil");
