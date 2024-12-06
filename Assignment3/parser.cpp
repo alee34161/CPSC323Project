@@ -2,16 +2,22 @@
 #include <stack>
 #include <string>
 stack<string> heapStack;
+stack<int> jumpStack;
 string instructions[1000][3];
-string symbols[1000];
+string symbols[1000][2];
 int instructionNumber = 1;
+int tempAddress;
 int symbolNumber = 0;
+string tempLexem = "";
+string tempToken = "";
 
 void generateInstruction(string instruction, string address)
 {
-	instructions[instructionNumber][0] = instructionNumber;
+	instructions[instructionNumber][0] = to_string(instructionNumber);
 	instructions[instructionNumber][1] = instruction;
 	instructions[instructionNumber][2] = address;
+	//cout << "\nAdded instruction number " << instructionNumber << " with instructions to " << instruction << " at " << address;
+	//cout << "\nThis resulted in: " << instructions[instructionNumber][0] << "\t" << instructions[instructionNumber][1] << "\t" << instructions[instructionNumber][2];
 	instructionNumber++;
 }
 
@@ -20,9 +26,10 @@ string getAddress(string lexeme)
 	int temp = -1;
 	for(int i = 0; i < 1000; i++)
 	{
-		if(symbols[i] == lexeme)
+		if(symbols[i][0] == lexeme)
 		{
 			temp = i;
+			break;
 		}
 	} 
 	if(temp == -1)
@@ -32,6 +39,13 @@ string getAddress(string lexeme)
 	temp += 9000;
 
 	return to_string(temp);
+}
+
+void backPatch(int instNumber)
+{
+	tempAddress = jumpStack.top();
+	jumpStack.pop();
+	instructions[tempAddress][2] = to_string(instNumber);
 }
 
 void syntaxError()
@@ -206,6 +220,7 @@ void qualifier()
 		syntaxError();
 	} else
 	{
+		tempToken = lexem;
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -288,18 +303,20 @@ void ids()
 		bool found = false;
 		for(int i = 0; i < 1000; i++)
 		{
-			if(symbols[i] == lexem)
+			if(symbols[i][0] == lexem)
 			{
 				found = true;
+				break;
 			}
 		}
 		if(found)
 		{
-			cout << "\n" << lexem << " already found in symbols table, expected if using get()" << endl;
+			//cout << "\n" << lexem << " already found in symbols table, error unless using get()" << endl;
 		} else
 		{
-			symbols[symbolNumber] = lexem;
-			cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber + 9000;
+			symbols[symbolNumber][0] = lexem;
+			symbols[symbolNumber][1] = tempToken;
+			//cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber + 9001;
 			symbolNumber++;
 		}
 		clearLexeme();
@@ -390,7 +407,7 @@ void assign()
 		syntaxError();
 	} else
 	{
-		string temp = lexem;
+		string holder = lexem;
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -403,9 +420,7 @@ void assign()
 			while(!lexer(token, lexem));
 			print(token, lexem);
 			expression();
-			generateInstruction("POPM", getAddress(temp));
-			cout << "\nGenerating Instruction with POPM, nil, " << getAddress(temp);
-			
+			generateInstruction("POPM", getAddress(holder));			
 			if(lexem != ";")
 			{
 				syntaxError();
@@ -448,6 +463,8 @@ void ifstatement()
 				while(!lexer(token, lexem));
 				print(token, lexem);
 				statement();
+				backPatch(instructionNumber);
+				generateInstruction("LABEL", "nil");
 				if(lexem == "else")
 				{
 					clearLexeme();
@@ -516,6 +533,7 @@ void printstatement()
 			while(!lexer(token, lexem));
 			print(token, lexem);
 			expression();
+			generateInstruction("STDOUT", "nil");
 			if(lexem != ")")
 			{
 				syntaxError();
@@ -546,6 +564,7 @@ void scanstatement()
 		syntaxError();
 	} else
 	{
+		generateInstruction("STDIN", "nil");
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -557,8 +576,9 @@ void scanstatement()
 			clearLexeme();
 			while(!lexer(token, lexem));
 			print(token, lexem);
-			generateInstruction("PUSHM", getAddress(lexem));
+			tempLexem = lexem;
 			ids();
+			generateInstruction("POPM", getAddress(tempLexem));
 			if(lexem != ")")
 			{
 				syntaxError();
@@ -589,6 +609,8 @@ void whilestatement()
 		syntaxError();
 	} else
 	{
+		tempAddress = instructionNumber;
+		generateInstruction("LABEL", "nil");
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -610,6 +632,8 @@ void whilestatement()
 				while(!lexer(token, lexem));
 				print(token, lexem);
 				statement();
+				generateInstruction("JUMP", to_string(tempAddress));
+				backPatch(instructionNumber);
 			}
 		}
 	}
@@ -619,8 +643,40 @@ void condition()
 {
 	print("\t<Condition> -> <Expression> <Relop> <Expression>");
 	expression();
+	string yoyo = lexem;
 	relop();
 	expression();
+	if(yoyo == "<")
+	{
+		generateInstruction("LES", "nil");
+		jumpStack.push(instructionNumber);
+		generateInstruction("JUMPZ", "nil");
+	} else if(yoyo == "==")
+	{
+		generateInstruction("EQU", "nil");
+		jumpStack.push(instructionNumber);
+		generateInstruction("JUMPZ", "nil");
+	} else if(yoyo == "!=")
+	{
+		generateInstruction("NEQ", "nil");
+		jumpStack.push(instructionNumber);
+		generateInstruction("JUMPZ", "nil");
+	} else if(yoyo == ">")
+	{
+		generateInstruction("GRT", "nil");
+		jumpStack.push(instructionNumber);
+		generateInstruction("JUMPZ", "nil");
+	} else if(yoyo == "<=")
+	{
+		generateInstruction("LEQ", "nil");
+		jumpStack.push(instructionNumber);
+		generateInstruction("JUMPZ", "nil");
+	} else if(yoyo == "=>")
+	{
+		generateInstruction("GEQ", "nil");
+		jumpStack.push(instructionNumber);
+		generateInstruction("JUMPZ", "nil");
+	}
 }
 
 void relop()
@@ -631,6 +687,8 @@ void relop()
 		syntaxError();
 	} else
 	{
+		string yoyo = lexem;
+		
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
@@ -652,19 +710,18 @@ void expressionprime()
 	print("\t<ExpressionPrime> -> + <Term> <ExpressionPrime> | - <Term> <ExpressionPrime> | <Empty>");
 	if(lexem == "+" || lexem == "-")
 	{
-		if(lexem == "+")
-		{
-			generateInstruction("ADD", "nil");
-			cout << "\nGenerating instructions with ADD, nil, nil";
-		} else
-		{
-			generateInstruction("SUB", "nil");
-			cout << "\nGenerating instructions iwth SUB nil nil";
-		}
+		string placeHolder = lexem;
 		clearLexeme();
 		while(!lexer(token, lexem));
 		print(token, lexem);
 		term();
+		if(placeHolder == "+")
+		{
+			generateInstruction("ADD", "nil");
+		} else
+		{
+			generateInstruction("SUB", "nil");
+		}
 		expressionprime();
 	} else
 	{
@@ -757,6 +814,7 @@ void primary()
 			}
 		} else if(token == "integer")
 		{
+			generateInstruction("PUSHI", lexem);
 			clearLexeme();
 			while(!lexer(token, lexem));
 			print(token, lexem);
@@ -782,11 +840,13 @@ void primary()
 			}
 		} else if(lexem == "true")
 		{
+			generateInstruction("PUSHI", "1");
 			clearLexeme();
 			while(!lexer(token, lexem));
 			print(token, lexem);
 		} else if(lexem == "false")
 		{
+			generateInstruction("PUSHI", "0");
 			clearLexeme();
 			while(!lexer(token, lexem));
 			print(token, lexem);
