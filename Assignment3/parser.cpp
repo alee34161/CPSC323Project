@@ -10,6 +10,7 @@ int tempAddress;
 int symbolNumber = 0;
 string tempLexem = "";
 string tempToken = "";
+bool getUsed = false;
 
 void generateInstruction(string instruction, string address)
 {
@@ -34,7 +35,8 @@ string getAddress(string lexeme)
 	} 
 	if(temp == -1)
 	{
-		return "error finding symbol address";
+		cout << "\nERROR: could not find " << lexeme << " in symbol table.\n";
+		return "error";
 	}
 	temp += 9000;
 
@@ -50,7 +52,8 @@ void backPatch(int instNumber)
 
 void syntaxError()
 {
-	result << "\nSYNTAX ERROR DETECTED ON LINE " << lineNumber << "\nillegal lexeme: " << lexem << ", token type: " << token;
+	result << "\nSYNTAX ERROR DETECTED ON LINE " << lineNumber << "\nillegal lexeme: " << lexem << ", token type: " << token << endl;
+	cout << "\nSYNTAX ERROR DETECTED ON LINE " << lineNumber << "\nillegal lexeme: " << lexem << ", token type: " << token << endl;
 }
 void rat24F();
 void optFuncDef();
@@ -309,14 +312,15 @@ void ids()
 				break;
 			}
 		}
-		if(found)
+		if(found && !getUsed)
 		{
-			//cout << "\n" << lexem << " already found in symbols table, error unless using get()" << endl;
+			cout << "\nERROR: " << lexem << " is already in symbol table." << endl;
 		} else
 		{
 			symbols[symbolNumber][0] = lexem;
 			symbols[symbolNumber][1] = tempToken;
-			//cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber + 9001;
+			tempToken = "";
+			//cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber + 9000;
 			symbolNumber++;
 		}
 		clearLexeme();
@@ -564,6 +568,7 @@ void scanstatement()
 		syntaxError();
 	} else
 	{
+		getUsed = true;
 		generateInstruction("STDIN", "nil");
 		clearLexeme();
 		while(!lexer(token, lexem));
@@ -578,6 +583,7 @@ void scanstatement()
 			print(token, lexem);
 			tempLexem = lexem;
 			ids();
+			getUsed = false;
 			generateInstruction("POPM", getAddress(tempLexem));
 			if(lexem != ")")
 			{
