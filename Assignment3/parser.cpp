@@ -293,6 +293,7 @@ void declaration()
 	qualifier();
 	
 	ids();
+	tempToken = "";
 }
 
 void ids()
@@ -315,11 +316,10 @@ void ids()
 		if(found && !getUsed)
 		{
 			cout << "\nERROR: " << lexem << " is already in symbol table." << endl;
-		} else
+		} else if(!found)
 		{
 			symbols[symbolNumber][0] = lexem;
 			symbols[symbolNumber][1] = tempToken;
-			tempToken = "";
 			//cout << "\nAdding new symbol to table, " << lexem << " at " << symbolNumber + 9000;
 			symbolNumber++;
 		}

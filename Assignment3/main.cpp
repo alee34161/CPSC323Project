@@ -15,19 +15,9 @@ int main()
 	ofstream instruc;
 	instruc.open("assemblyCode.txt");
 
-	// run lexer.
-	/*while(!text.eof())
-	{
-		// if lexer FSMs/lists detect something, then output to result.txt
-		if(lexer(token, lexem))
-		{
-			print(token, lexem);
-		}
-	}*/
-
 	rat24F();
 
-	instruc << left << setw(15) << "===============================================\n" << "Instruction Table" << endl << "===============================================\nAddress\t\t\tOp\t\t\t\tOprnd\n"; 
+	instruc << left << setw(20) << "====================================================\nInstruction Table\n====================================================\nAddress\t\t\tOp\t\t\tOprnd\n"; 
 	for(int i = 0; i < 1000; i++)
 	{
 		if(instructions[i][0] == "")
@@ -44,7 +34,7 @@ int main()
 				}
 			} else
 			{
-				instruc << left << setw(15) << instructions[i][j] << "\t";
+				instruc << left << setw(20) << instructions[i][j] << "\t";
 				if(j == 2)
 				{
 					instruc << "\n";
@@ -53,7 +43,7 @@ int main()
 		}
 	}
 
-	instruc << left << setw(15) << "\n\n===============================================\nSymbol Table\n===============================================\nIdentifier\t\tMemoryLocation\t\tType\n";
+	instruc << left << setw(20) << "\n\n====================================================\nSymbol Table\n====================================================\nIdentifier\tMemory Location\tType\n";
 	int number = 9000;
 	for(int i = 0; i < 1000; i++)
 	{
@@ -62,7 +52,7 @@ int main()
 		{
 			continue;
 		}
-		instruc << left << setw(15) << s << "\t" << number << "\t\t\t\t" << symbols[i][1] << endl;
+		instruc << left << setw(20) << s << number << "\t" << symbols[i][1] << endl;
 		number++;
 	}
 
